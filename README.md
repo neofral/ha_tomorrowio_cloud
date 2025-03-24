@@ -1,4 +1,4 @@
-# tomorrowio_cloud\
+# tomorrowio_cloud
 With this integration you can get the hourly cloud coverage which is not done with weather-forecast update action in Home Assistant\
 \
 I spent many hours trying to get a simple code work and finally it's here.\
