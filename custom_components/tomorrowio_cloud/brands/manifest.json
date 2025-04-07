@@ -1,0 +1,7 @@
+{
+  "domain": "tomorrowio_cloud",
+  "name": "Tomorrow.io Cloud Coverage",
+  "documentation": "https://github.com/neofral/tomorrowio_cloud",
+  "iot_class": "cloud_polling",
+  "version": "2.1.1"
+}
