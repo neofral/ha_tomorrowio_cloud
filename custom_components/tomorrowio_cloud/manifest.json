@@ -5,5 +5,5 @@
     "documentation": "https://github.com/neofral/tomorrowio_cloud",
     "dependencies": [],
     "codeowners": ["@neofral"],
-    "requirements": ["requests"]
+    "requirements": ["requests", "geopy"]
 }

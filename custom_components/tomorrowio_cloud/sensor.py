@@ -2,6 +2,8 @@ import requests
 import logging
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.event import async_track_time_change
+from geopy.geocoders import Nominatim
+from geopy.exc import GeocoderTimedOut
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -51,6 +53,20 @@ class TomorrowIoHourlyCloudCoverageSensor(Entity):
         self.longitude = longitude
         self.hour = hour
         self._state = None
+        self._city = self._get_city_name()
+        self._attr_unique_id = f"tomorrowio_cloud_coverage_{self._city}_{hour}"
+
+    def _get_city_name(self):
+        """Get city name from coordinates."""
+        try:
+            geolocator = Nominatim(user_agent="home-assistant-tomorrowio")
+            location = geolocator.reverse(f"{self.latitude}, {self.longitude}")
+            address = location.raw['address']
+            city = address.get('city') or address.get('town') or address.get('village') or address.get('suburb')
+            return city or f"{self.latitude}_{self.longitude}"
+        except (GeocoderTimedOut, Exception) as e:
+            _LOGGER.error("Error getting city name: %s", e)
+            return f"{self.latitude}_{self.longitude}"
 
     @property
     def name(self):
@@ -66,6 +82,17 @@ class TomorrowIoHourlyCloudCoverageSensor(Entity):
     def unit_of_measurement(self):
         """Return the unit of measurement for cloud coverage."""
         return "%"
+
+    @property
+    def device_info(self):
+        """Return device information."""
+        return {
+            "identifiers": {("tomorrowio_cloud", f"tomorrowio_{self._city}")},
+            "name": f"Tomorrow.io Cloud Coverage - {self._city}",
+            "manufacturer": "Tomorrow.io",
+            "model": "Cloud Coverage Forecast",
+            "sw_version": "1.0",
+        }
 
     def update(self):
         """Fetch cloud coverage for the specified hour from Tomorrow.io."""
