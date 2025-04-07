@@ -57,20 +57,27 @@ class TomorrowIoHourlyCloudCoverageSensor(Entity):
         self.longitude = longitude
         self.hour = hour
         self._state = None
-        self._city = self._get_city_name()
-        self._attr_unique_id = f"tomorrowio_cloud_coverage_{self._city}_{hour}"
-
-    def _get_city_name(self):
-        """Get city name from coordinates."""
+        
+        # Try to get city name synchronously during initialization
         try:
             geolocator = Nominatim(user_agent="home-assistant-tomorrowio")
-            location = geolocator.reverse(f"{self.latitude}, {self.longitude}")
-            address = location.raw['address']
-            city = address.get('city') or address.get('town') or address.get('village') or address.get('suburb')
-            return city or f"{self.latitude}_{self.longitude}"
-        except (GeocoderTimedOut, Exception) as e:
+            location = geolocator.reverse(f"{self.latitude}, {self.longitude}", timeout=10)
+            if location and location.raw.get('address'):
+                address = location.raw['address']
+                self._city = (address.get('city') or 
+                            address.get('town') or 
+                            address.get('village') or 
+                            address.get('suburb') or 
+                            address.get('municipality'))
+                if not self._city:
+                    self._city = f"{self.latitude}_{self.longitude}"
+            else:
+                self._city = f"{self.latitude}_{self.longitude}"
+        except Exception as e:
             _LOGGER.error("Error getting city name: %s", e)
-            return f"{self.latitude}_{self.longitude}"
+            self._city = f"{self.latitude}_{self.longitude}"
+
+        self._attr_unique_id = f"tomorrowio_cloud_coverage_{self._city}_{hour}"
 
     @property
     def name(self):
