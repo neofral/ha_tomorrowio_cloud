@@ -30,7 +30,16 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             sensor.update()
             sensor.async_write_ha_state()
 
+    async def force_update(call):
+        """Force update of all sensors."""
+        _LOGGER.info("Manually updating Tomorrow.io cloud coverage sensors")
+        for sensor in sensors:
+            sensor.update()
+            sensor.async_write_ha_state()
+
+    # Register the scheduled update and force update service
     async_track_time_change(hass, update_sensors_at_2350, hour=23, minute=50)
+    hass.services.register("tomorrowio_cloud", "force_update", force_update)
 
 class TomorrowIoHourlyCloudCoverageSensor(Entity):
     """Representation of a Tomorrow.io Hourly Cloud Coverage Sensor."""
