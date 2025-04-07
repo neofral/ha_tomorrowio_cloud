@@ -4,27 +4,31 @@ from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.event import async_track_time_change
 from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from .const import CONF_API_KEY, CONF_LATITUDE, CONF_LONGITUDE
 
 _LOGGER = logging.getLogger(__name__)
 
 BASE_URL = "https://api.tomorrow.io/v4/timelines"
 
-CONF_API_KEY = "api_key"
-CONF_LATITUDE = "latitude"
-CONF_LONGITUDE = "longitude"
-
-def setup_platform(hass, config, add_entities, discovery_info=None):
-    """Set up 24 Tomorrow.io cloud coverage sensors for the next 24 hours."""
+async def async_setup_entry(
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+) -> None:
+    """Set up the Tomorrow.io sensors from config entry."""
+    config = config_entry.data
     api_key = config[CONF_API_KEY]
     latitude = config.get(CONF_LATITUDE, hass.config.latitude)
     longitude = config.get(CONF_LONGITUDE, hass.config.longitude)
 
-    # Create and add 24 individual sensors, one for each hour
     sensors = [
         TomorrowIoHourlyCloudCoverageSensor(api_key, latitude, longitude, hour)
-        for hour in range(1, 25)  # Hour 1 to Hour 24
+        for hour in range(1, 25)
     ]
-    add_entities(sensors, True)
+    async_add_entities(sensors, True)
 
     # Schedule an update for all sensors at 23:50
     async def update_sensors_at_2350(now):
