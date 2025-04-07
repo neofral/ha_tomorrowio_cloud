@@ -1,0 +1,15 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Tomorrow.io Setup",
+                "description": "Enter your Tomorrow.io API key.",
+                "data": {
+                    "api_key": "API Key",
+                    "latitude": "Latitude (optional)",
+                    "longitude": "Longitude (optional)"
+                }
+            }
+        }
+    }
+}

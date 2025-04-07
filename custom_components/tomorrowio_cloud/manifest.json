@@ -5,5 +5,8 @@
     "documentation": "https://github.com/neofral/tomorrowio_cloud",
     "dependencies": [],
     "codeowners": ["@neofral"],
-    "requirements": ["requests", "geopy"]
+    "requirements": ["requests", "geopy"],
+    "config_flow": true,
+    "integration_type": "device",
+    "icon": "https://raw.githubusercontent.com/neofral/tomorrowio_cloud/main/custom_components/tomorrowio_cloud/brands/icon.png"
 }
