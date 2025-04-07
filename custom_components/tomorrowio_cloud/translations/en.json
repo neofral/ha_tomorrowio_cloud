@@ -3,11 +3,12 @@
         "step": {
             "user": {
                 "title": "Tomorrow.io Setup",
-                "description": "Enter your Tomorrow.io API key.",
+                "description": "Enter your Tomorrow.io API key and location details.",
                 "data": {
                     "api_key": "API Key",
-                    "latitude": "Latitude (optional)",
-                    "longitude": "Longitude (optional)"
+                    "city": "City Name",
+                    "latitude": "Latitude",
+                    "longitude": "Longitude"
                 }
             }
         }

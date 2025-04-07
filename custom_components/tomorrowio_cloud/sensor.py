@@ -7,7 +7,7 @@ from geopy.exc import GeocoderTimedOut
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from .const import CONF_API_KEY, CONF_LATITUDE, CONF_LONGITUDE
+from .const import CONF_API_KEY, CONF_LATITUDE, CONF_LONGITUDE, CONF_CITY
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -21,11 +21,12 @@ async def async_setup_entry(
     """Set up the Tomorrow.io sensors from config entry."""
     config = config_entry.data
     api_key = config[CONF_API_KEY]
+    city = config[CONF_CITY]
     latitude = config.get(CONF_LATITUDE, hass.config.latitude)
     longitude = config.get(CONF_LONGITUDE, hass.config.longitude)
 
     sensors = [
-        TomorrowIoHourlyCloudCoverageSensor(api_key, latitude, longitude, hour)
+        TomorrowIoHourlyCloudCoverageSensor(api_key, latitude, longitude, hour, city)
         for hour in range(1, 25)
     ]
     async_add_entities(sensors, True)
@@ -50,33 +51,14 @@ async def async_setup_entry(
 class TomorrowIoHourlyCloudCoverageSensor(Entity):
     """Representation of a Tomorrow.io Hourly Cloud Coverage Sensor."""
 
-    def __init__(self, api_key, latitude, longitude, hour):
+    def __init__(self, api_key, latitude, longitude, hour, city):
         """Initialize the sensor."""
         self.api_key = api_key
         self.latitude = latitude
         self.longitude = longitude
         self.hour = hour
         self._state = None
-        
-        # Try to get city name synchronously during initialization
-        try:
-            geolocator = Nominatim(user_agent="home-assistant-tomorrowio")
-            location = geolocator.reverse(f"{self.latitude}, {self.longitude}", timeout=10)
-            if location and location.raw.get('address'):
-                address = location.raw['address']
-                self._city = (address.get('city') or 
-                            address.get('town') or 
-                            address.get('village') or 
-                            address.get('suburb') or 
-                            address.get('municipality'))
-                if not self._city:
-                    self._city = f"{self.latitude}_{self.longitude}"
-            else:
-                self._city = f"{self.latitude}_{self.longitude}"
-        except Exception as e:
-            _LOGGER.error("Error getting city name: %s", e)
-            self._city = f"{self.latitude}_{self.longitude}"
-
+        self._city = city
         self._attr_unique_id = f"tomorrowio_cloud_coverage_{self._city}_{hour}"
 
     @property
