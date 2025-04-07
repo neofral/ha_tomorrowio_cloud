@@ -4,6 +4,6 @@
     "version": "1.0.0",
     "documentation": "https://github.com/neofral/tomorrowio_cloud",
     "dependencies": [],
-    "codeowners": "neofral",
+    "codeowners": ["@neofral"],
     "requirements": ["requests"]
 }

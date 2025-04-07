@@ -1,6 +1,7 @@
 import requests
 import logging
 from homeassistant.helpers.entity import Entity
+from homeassistant.helpers.event import async_track_time_change
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -23,6 +24,14 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     ]
     add_entities(sensors, True)
 
+    # Schedule an update for all sensors at 23:50
+    async def update_sensors_at_2350(now):
+        for sensor in sensors:
+            sensor.update()
+            sensor.async_write_ha_state()
+
+    async_track_time_change(hass, update_sensors_at_2350, hour=23, minute=50)
+
 class TomorrowIoHourlyCloudCoverageSensor(Entity):
     """Representation of a Tomorrow.io Hourly Cloud Coverage Sensor."""
 
@@ -37,7 +46,7 @@ class TomorrowIoHourlyCloudCoverageSensor(Entity):
     @property
     def name(self):
         """Return the name of the sensor with the hour number."""
-        return f"Cloud Coverage - Hour {self.hour}"
+        return f"Cloud Coverage - Hour {self.hour:02d}"
 
     @property
     def state(self):
